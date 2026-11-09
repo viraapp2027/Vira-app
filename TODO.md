@@ -21,7 +21,7 @@ Este backlog preserva o escopo mestre da plataforma. A Fase 1 aprovada está ind
 - As áreas pública e autenticada devem ser responsivas, adequadas a celular e desktop, com navegação correspondente somente às páginas existentes.
 - Implementar modo claro/escuro, feedbacks, carregamento, erros e estados vazios nas jornadas entregues; garantir leitura, foco visível, operação por teclado e movimento reduzido quando solicitado pelo sistema.
 
-## 3. [Fase 1 — código implementado; migration e fluxo real pendentes] Supabase Auth, maioridade e sessão
+## 3. [Fase 1 — migration aplicada; fluxo pronto para o primeiro teste] Supabase Auth, maioridade e sessão
 
 - Implementar cadastro, login e saída de sessão reais por Supabase Auth.
 - Aceitar somente pessoas maiores de 18 anos; impedir a conclusão do cadastro de menores.
@@ -29,7 +29,7 @@ Este backlog preserva o escopo mestre da plataforma. A Fase 1 aprovada está ind
 - Usar exclusivamente a chave pública/anon no frontend. Não expor nem versionar a chave `service_role` ou outras credenciais privilegiadas.
 - Aplicar rotas protegidas e estados claros para sessão ausente, carregamento, falha de autenticação e saída.
 
-## 4. [Fase 1 — código implementado; migration e persistência real pendentes] Onboarding, perfil e proteção de dados
+## 4. [Fase 1 — migration/RLS aplicadas; aguardando o primeiro perfil] Onboarding, perfil e proteção de dados
 
 - Permitir que o usuário informe nome de exibição, data de nascimento, cidade, estado, biografia opcional, interesses e uma ou várias intenções na plataforma.
 - As intenções disponíveis são: fazer amizades; procurar relacionamento; encontrar companhia para passeios; participar de comunidades.
