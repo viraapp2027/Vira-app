@@ -20,7 +20,8 @@ async function detectedImageType(file: File): Promise<string | null> {
 }
 
 export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const albumInputRef = useRef<HTMLInputElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement | null>(null);
   const dragRef = useRef({ active: false, x: 0, y: 0 });
@@ -156,8 +157,12 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
       <div className="avatar-editor__content">
         <h2 id="avatar-editor-title">Sua foto de perfil</h2>
         <p>Escolha ou tire uma foto. Antes de enviar, você poderá recortar e enquadrar o rosto.</p>
-        <input ref={inputRef} className="sr-only" type="file" accept="image/*" capture="environment" aria-label="Selecionar ou tirar uma foto de perfil" disabled={busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; void selectFile(file); }} />
-        <button className="button button--outline" type="button" disabled={busy} onClick={() => inputRef.current?.click()}><Camera size={17} aria-hidden="true" /> {pendingFile ? 'Escolher outra foto' : imageUrl ? 'Trocar foto' : 'Escolher foto'}</button>
+        <input ref={cameraInputRef} className="sr-only" type="file" accept="image/*" capture="environment" aria-label="Tirar uma foto de perfil" disabled={busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; void selectFile(file); }} />
+        <input ref={albumInputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/*" aria-label="Escolher uma foto do álbum" disabled={busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; void selectFile(file); }} />
+        <div className="avatar-editor__actions">
+          <button className="button button--outline" type="button" disabled={busy} onClick={() => cameraInputRef.current?.click()}><Camera size={17} aria-hidden="true" /> Tirar foto</button>
+          <button className="button button--outline" type="button" disabled={busy} onClick={() => albumInputRef.current?.click()}>Escolher do álbum</button>
+        </div>
         {pendingFile && !cropOpen && <>
           <p className="avatar-editor__status" role="status">Prévia de “{pendingFile.name}”. A foto atual só será trocada após confirmar o envio.</p>
           <div className="avatar-editor__actions"><button className="button button--outline" type="button" disabled={busy} onClick={() => void uploadSelected()}>{busy ? 'Enviando…' : 'Enviar foto'}</button><button className="button button--outline" type="button" disabled={busy} onClick={cancelSelection}>Cancelar</button></div>
