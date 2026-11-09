@@ -9,6 +9,13 @@ interface AvatarPickerProps {
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
+async function detectedImageType(file: File): Promise<string | null> {
+  const bytes = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg';
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47 && bytes[4] === 0x0d && bytes[5] === 0x0a && bytes[6] === 0x1a && bytes[7] === 0x0a) return 'image/png';
+  if (bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === 'RIFF' && String.fromCharCode(...bytes.slice(8, 12)) === 'WEBP') return 'image/webp';
+  return null;
+}
 
 export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -30,23 +37,23 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
     return () => URL.revokeObjectURL(objectUrl);
   }, [pendingFile]);
 
-  function selectFile(file: File | undefined) {
+  async function selectFile(file: File | undefined) {
     if (!file) return;
     setMessage('');
     setError('');
-
-    if (!ALLOWED_TYPES.has(file.type)) {
-      setPendingFile(null);
-      setError('Escolha uma imagem JPEG, PNG ou WebP.');
-      return;
-    }
     if (file.size > MAX_IMAGE_BYTES) {
       setPendingFile(null);
-      setError('A imagem deve ter no máximo 5 MB.');
+      setError('A imagem deve ter no máximo 5 MB. Escolha uma foto menor.');
       return;
     }
-
-    setPendingFile(file);
+    const detectedType = await detectedImageType(file);
+    if (!detectedType || !ALLOWED_TYPES.has(detectedType)) {
+      setPendingFile(null);
+      setError('Este formato não é compatível. Escolha uma foto JPEG, PNG ou WebP; fotos HEIC/HEIF precisam ser convertidas antes.');
+      return;
+    }
+    // Alguns seletores Android retornam image/jpg ou deixam o MIME vazio.
+    setPendingFile(file.type === detectedType ? file : new File([file], file.name || 'avatar', { type: detectedType, lastModified: file.lastModified }));
   }
 
   async function uploadSelected() {
@@ -87,13 +94,13 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
           ref={inputRef}
           className="sr-only"
           type="file"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/*"
           aria-label="Selecionar uma foto de perfil"
           disabled={busy}
           onChange={(event) => {
             const file = event.currentTarget.files?.[0];
             event.currentTarget.value = '';
-            selectFile(file);
+            void selectFile(file);
           }}
         />
         <button className="button button--outline" type="button" disabled={busy} onClick={() => inputRef.current?.click()}>
