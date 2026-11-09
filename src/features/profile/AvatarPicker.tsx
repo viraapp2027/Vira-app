@@ -66,7 +66,7 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
 
   useEffect(() => { if (cropOpen) drawCrop(); }, [cropOpen, zoom, offset]);
 
-  async function selectFile(file: File | undefined) {
+  async function selectFile(file: File | undefined, fromCamera = false) {
     if (!file) return;
     setMessage('');
     setError('');
@@ -77,7 +77,7 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
     const detectedType = await detectedImageType(file);
     const reportedType = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
     const extensionType = /\.jpe?g$/i.test(file.name) ? 'image/jpeg' : /\.png$/i.test(file.name) ? 'image/png' : /\.webp$/i.test(file.name) ? 'image/webp' : null;
-    const usableType = detectedType ?? (reportedType.startsWith('image/') ? reportedType : extensionType);
+    const usableType = detectedType ?? (reportedType.startsWith('image/') ? reportedType : extensionType) ?? (fromCamera ? 'image/jpeg' : null);
     if (!usableType || (!ALLOWED_TYPES.has(usableType) && !reportedType.startsWith('image/'))) {
       setError('Este formato não é compatível. Escolha uma foto JPEG, PNG ou WebP; fotos HEIC/HEIF precisam ser convertidas antes.');
       return;
@@ -166,7 +166,7 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
       <div className="avatar-editor__content">
         <h2 id="avatar-editor-title">Sua foto de perfil</h2>
         <p>Escolha ou tire uma foto. Antes de enviar, você poderá recortar e enquadrar o rosto.</p>
-        <input ref={cameraInputRef} className="sr-only" type="file" accept="image/*" capture="environment" aria-label="Tirar uma foto de perfil" disabled={busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; void selectFile(file); }} />
+        <input ref={cameraInputRef} className="sr-only" type="file" accept="image/jpeg,image/png" capture="environment" aria-label="Tirar uma foto de perfil" disabled={busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; void selectFile(file, true); }} />
         <input ref={albumInputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp,image/*" aria-label="Escolher uma foto do álbum" disabled={busy} onChange={(event) => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; void selectFile(file); }} />
         <div className="avatar-editor__actions">
           <button className="button button--outline" type="button" disabled={busy} onClick={() => cameraInputRef.current?.click()}><Camera size={17} aria-hidden="true" /> Tirar foto</button>
