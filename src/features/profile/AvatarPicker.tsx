@@ -121,6 +121,15 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
       setPendingFile(cropped);
       setCropOpen(false);
       setCropUrl(null);
+      setMessage('Salvando sua foto…');
+      setError('');
+      setBusy(true);
+      void onUpload(cropped).then(() => {
+        setPendingFile(null);
+        setMessage('Sua foto foi atualizada.');
+      }).catch((caught) => {
+        setError(caught instanceof Error ? caught.message : 'Não foi possível salvar essa foto.');
+      }).finally(() => setBusy(false));
     }, 'image/jpeg', 0.9);
   }
 
@@ -177,7 +186,7 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
           <canvas ref={canvasRef} width={CROP_SIZE} height={CROP_SIZE} className="avatar-cropper__canvas" onPointerDown={(event) => { event.currentTarget.setPointerCapture(event.pointerId); dragRef.current = { active: true, x: event.clientX, y: event.clientY }; }} onPointerMove={moveCrop} onPointerUp={() => { dragRef.current.active = false; }} onPointerCancel={() => { dragRef.current.active = false; }} />
           <label className="avatar-cropper__zoom">Zoom <input type="range" min="1" max="3" step="0.01" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} /></label>
           <p className="avatar-cropper__hint"><Move size={15} /> Arraste para ajustar o enquadramento</p>
-          <div className="avatar-cropper__actions"><button className="button button--outline" type="button" onClick={cancelSelection}>Cancelar</button><button className="button" type="button" onClick={confirmCrop}><Check size={17} /> Usar esta foto</button></div>
+          <div className="avatar-cropper__actions"><button className="button button--outline" type="button" disabled={busy} onClick={cancelSelection}>Cancelar</button><button className="button" type="button" disabled={busy} onClick={confirmCrop}><Check size={17} /> Confirmar e salvar</button></div>
         </div>
       </div>}
     </section>
