@@ -1,6 +1,6 @@
 # VIRA — resultados e critérios de aceitação
 
-Este backlog preserva o escopo mestre da plataforma. A Fase 1 aprovada está indicada nos itens 1–4; os módulos posteriores permanecem abertos, sem serem apresentados como funcionalidades prontas.
+Este backlog preserva o escopo mestre da plataforma. A Fase 1 aprovada está indicada nos itens 1–4, com a extensão solicitada de OAuth e fotos nos itens 13–14; os módulos posteriores permanecem abertos, sem serem apresentados como funcionalidades prontas.
 
 ## 1. [Fase 1 — base implementada; Preview e build verificados] Fundação técnica, identidade e configuração
 
@@ -21,15 +21,17 @@ Este backlog preserva o escopo mestre da plataforma. A Fase 1 aprovada está ind
 - As áreas pública e autenticada devem ser responsivas, adequadas a celular e desktop, com navegação correspondente somente às páginas existentes.
 - Implementar modo claro/escuro, feedbacks, carregamento, erros e estados vazios nas jornadas entregues; garantir leitura, foco visível, operação por teclado e movimento reduzido quando solicitado pelo sistema.
 
-## 3. [Fase 1 — migration aplicada; fluxo pronto para o primeiro teste] Supabase Auth, maioridade e sessão
+## 3. [Fase 1 — autodeclaração registrada no banco; Google/Facebook aguardam credenciais externas] Supabase Auth, maioridade e sessão
 
 - Implementar cadastro, login e saída de sessão reais por Supabase Auth.
-- Aceitar somente pessoas maiores de 18 anos; impedir a conclusão do cadastro de menores.
+- Usar barreira etária baseada na data de nascimento informada e em um checkbox afirmativo explícito de 18 anos ou mais. Registrar a autodeclaração, o horário definido pelo banco e a versão do texto no cadastro por e-mail ou ao salvar o onboarding social/legado; impedir alteração da data/revogação da declaração depois da conclusão.
+- Esta etapa não faz verificação independente de identidade/idade por documento e não prova a veracidade da data autodeclarada; não afirmar que detecta quem informa idade falsa.
+- Preservar o perfil concluído que existia antes do registro da declaração e solicitar ao titular uma confirmação única na próxima entrada, sem apagar os demais dados.
 - A data de nascimento é privada e não deve ser exibida publicamente; a idade, quando mostrada, é derivada dela.
 - Usar exclusivamente a chave pública/anon no frontend. Não expor nem versionar a chave `service_role` ou outras credenciais privilegiadas.
 - Aplicar rotas protegidas e estados claros para sessão ausente, carregamento, falha de autenticação e saída.
 
-## 4. [Fase 1 — migration/RLS aplicadas; aguardando o primeiro perfil] Onboarding, perfil e proteção de dados
+## 4. [Fase 1 — schema/RLS e funções aplicados; aguarda teste real da conta] Onboarding, perfil e proteção de dados
 
 - Permitir que o usuário informe nome de exibição, data de nascimento, cidade, estado, biografia opcional, interesses e uma ou várias intenções na plataforma.
 - As intenções disponíveis são: fazer amizades; procurar relacionamento; encontrar companhia para passeios; participar de comunidades.
@@ -93,10 +95,31 @@ Este backlog preserva o escopo mestre da plataforma. A Fase 1 aprovada está ind
 - Tipo de plano e permissões devem ser controlados de maneira segura no backend.
 - Criar forma administrativa de conceder e remover acesso Premium de teste.
 
-
 ## 12. [Fase 1 — visual implementado; Preview verificado] Adaptação da referência visual fornecida
 
-- Seguir o clima da referência: fundo azul-marinho profundo, detalhes luminosos em roxo/ciano/magenta, cantos arredondados, navegação superior e um hero assimétrico em desktop, empilhado em telas pequenas.
-- Preservar o logo VIRA original; gerar uma arte original para o hero, sem copiar pessoas ou composição exata da referência.
-- Usar âncoras que naveguem para seções existentes da landing. CTAs devem levar a cadastro/login reais.
-- A faixa de prévias visuais deve representar somente cadastro, onboarding e perfil implementados na Fase 1. Recursos futuros podem ser informativos, identificados como planejados, e não devem parecer telas funcionais nem conter ações falsas.
+- Adaptar a direção visual da landing ao exemplo do usuário: fundo azul-marinho profundo; destaques em roxo, magenta e ciano; navegação superior; hero assimétrico com texto à esquerda e arte original com pessoas adultas à direita; elementos circulares luminosos e cartões de módulos ao redor; CTA de cadastro destacado.
+- A tipografia e paleta devem permanecer legíveis e coerentes com o logo oficial do VIRA; manter responsividade e estados de claro/escuro onde aplicável.
+- A faixa inferior pode usar quadros ilustrativos da marca, mas deve corresponder apenas às jornadas implementadas; não apresentar controles sociais futuros como telas operacionais.
+- Os CTAs “Criar conta grátis”, “Entrar” e “Como funciona” devem conduzir a fluxos reais ou âncoras funcionais.
+- Em celular, reorganizar hero, menu e faixa para leitura vertical sem distorcer ou recortar o logo.
+
+## 13. [Extensão solicitada — código pronto; configuração de provedores pendente] Login social Google e Facebook
+
+- Oferecer botões de login/cadastro social Google e Facebook nas telas de autenticação existentes, usando `supabase.auth.signInWithOAuth` e a sessão Supabase real.
+- O fluxo deve retornar ao VIRA em `/auth/callback`, continuar para onboarding quando não houver perfil completo ou autodeclaração registrada e para a área autenticada quando o perfil estiver pronto; tratar carregamento, cancelamento e erro sem simular autenticação.
+- Como os provedores sociais podem não enviar a data de nascimento, solicitar esse dado em privado no onboarding, exigir checkbox explícito de autodeclaração de 18 anos e bloquear a conclusão do perfil/uso da área autenticada sem isso.
+- Para Google, configurar escopos de identidade, e-mail e perfil (`openid`, `userinfo.email`, `userinfo.profile`). Para Facebook, habilitar as permissões `public_profile` e `email`.
+- Configurar os Redirect URLs da aplicação: `https://vira-cr5vxix7.manus.space/auth/callback`, `https://8328-imfejuxl072isgpvi2r95-708c8afa.us5.manus.computer/auth/callback`, `https://vira.onrender.com/auth/callback` e `http://localhost:3000/auth/callback`.
+- Nos consoles Google e Facebook, cadastrar como callback do provedor o endereço Supabase `https://bcrjygubveuummfzpcfi.supabase.co/auth/v1/callback`; Google também deve permitir as origens JavaScript correspondentes.
+- As credenciais Client ID/Secret e App ID/Secret devem permanecer em Supabase Auth e não podem ser incluídas no código, bundle, Render ou Git.
+
+## 14. [Extensão solicitada — bucket/funções aplicados; aguarda primeiro teste real] Importação, armazenamento e troca de foto de perfil
+
+- Criar e usar a coluna `profiles.avatar_path` e o bucket privado `vira-avatars`, com objetos separados por UUID do dono. Nesta fase, somente o usuário autenticado dono pode ler, enviar, substituir ou remover sua foto; permissões futuras de descoberta devem ser aprovadas junto ao módulo social.
+- Antes de concluir o onboarding, informar que a foto disponível no Google/Facebook será importada automaticamente depois desta etapa e que a pessoa poderá trocá-la em Editar perfil. Após login social e conclusão do onboarding com data informada, maioridade declarada e autodeclaração registrada, importar automaticamente a foto disponibilizada pelo provedor, somente se a pessoa ainda não tiver escolhido uma foto. Nunca interpretar `user_metadata` como autorização, declaração etária ou prova de idade.
+- A importação social deve usar a Edge Function `import-provider-avatar`, validar o JWT Supabase do usuário, aceitar apenas URLs HTTPS de hosts confiáveis Google/Facebook e bloquear redirects para hosts não autorizados, SSRF, tipos inválidos e arquivos maiores que 5 MiB.
+- Disponibilizar na tela de perfil/edição um seletor local acessível, prévia, carregamento, erros e opção de trocar a foto. Aceitar somente JPEG, PNG ou WebP até 5 MiB e validar também a assinatura binária do conteúdo no servidor.
+- O upload manual deve passar pela Edge Function autenticada `upload-profile-avatar`; limitar o corpo multipart a 5 MiB mais no máximo 256 KiB de overhead e validar sessão, onboarding e autodeclaração no servidor.
+- A troca manual deve gravar um objeto em caminho único, atualizar `avatar_path` somente se o caminho anterior não mudou durante o upload e apagar a foto anterior apenas depois da atualização bem-sucedida. Em caso de conflito/falha, remover somente o arquivo recém-criado e manter a foto antiga.
+- Exibir a foto privada por URL assinada de 10 minutos e renová-la em até 8 minutos durante a sessão e quando o app voltar ao foco.
+- As duas Edge Functions devem exigir JWT, usar cliente Supabase com escopo RLS do usuário e ter allowlist CORS limitada a origens exatas; nunca expor `service_role`.

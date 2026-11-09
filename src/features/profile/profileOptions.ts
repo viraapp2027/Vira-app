@@ -22,7 +22,8 @@ export const BRAZILIAN_STATES = [
   ['SP', 'São Paulo'], ['SE', 'Sergipe'], ['TO', 'Tocantins'],
 ] as const;
 
-export function calculateAge(dateOfBirth: string, now = new Date()): number {
+export function calculateAge(dateOfBirth: string | null, now = new Date()): number {
+  if (!dateOfBirth) return 0;
   const birthDate = new Date(`${dateOfBirth}T00:00:00`);
   if (Number.isNaN(birthDate.getTime())) return 0;
 
@@ -32,7 +33,7 @@ export function calculateAge(dateOfBirth: string, now = new Date()): number {
   return age;
 }
 
-export function isAdult(dateOfBirth: string, now = new Date()): boolean {
+export function isAdult(dateOfBirth: string | null, now = new Date()): boolean {
   if (!dateOfBirth || calculateAge(dateOfBirth, now) < 18) return false;
   return new Date(`${dateOfBirth}T00:00:00`).getTime() <= now.getTime();
 }

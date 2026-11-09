@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Check, Save } from 'lucide-react';
-import { BRAZILIAN_STATES, INTEREST_OPTIONS, INTENTION_OPTIONS } from './profileOptions';
+import { BRAZILIAN_STATES, INTEREST_OPTIONS, INTENTION_OPTIONS, isAdult } from './profileOptions';
 import type { Intention, Profile, ProfileUpdate } from '../../types/profile';
 
 interface ProfileFormProps {
@@ -12,6 +12,8 @@ interface ProfileFormProps {
 
 export function ProfileForm({ profile, submitLabel, onSubmit, onCancel }: ProfileFormProps) {
   const [displayName, setDisplayName] = useState(profile.display_name);
+  const [dateOfBirth, setDateOfBirth] = useState(profile.date_of_birth ?? '');
+  const [acceptedAdult, setAcceptedAdult] = useState(false);
   const [city, setCity] = useState(profile.city);
   const [state, setState] = useState(profile.state);
   const [bio, setBio] = useState(profile.bio ?? '');
@@ -19,6 +21,12 @@ export function ProfileForm({ profile, submitLabel, onSubmit, onCancel }: Profil
   const [intentions, setIntentions] = useState<Intention[]>(profile.intentions ?? []);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  const needsBirthDate = !profile.date_of_birth;
+  const needsAgeAttestation = !profile.adult_attested || !profile.adult_attested_at;
+  const latestBirthDate = new Date();
+  latestBirthDate.setFullYear(latestBirthDate.getFullYear() - 18);
+  const maxBirthDate = `${latestBirthDate.getFullYear()}-${String(latestBirthDate.getMonth() + 1).padStart(2, '0')}-${String(latestBirthDate.getDate()).padStart(2, '0')}`;
 
   function toggleInterest(value: string) {
     setInterests((current) => current.includes(value) ? current.filter((item) => item !== value) : [...current, value]);
@@ -31,10 +39,13 @@ export function ProfileForm({ profile, submitLabel, onSubmit, onCancel }: Profil
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError('');
+    if (needsBirthDate && !isAdult(dateOfBirth)) { setError('A data informada precisa indicar 18 anos ou mais.'); return; }
+    if (needsAgeAttestation && !acceptedAdult) { setError('Confirme sua autodeclaração de que tem 18 anos ou mais.'); return; }
     if (intentions.length === 0) { setError('Escolha ao menos uma intenção para continuar.'); return; }
+
     setBusy(true);
     try {
-      await onSubmit({
+      const update: ProfileUpdate = {
         display_name: displayName.trim(),
         city: city.trim(),
         state,
@@ -42,9 +53,12 @@ export function ProfileForm({ profile, submitLabel, onSubmit, onCancel }: Profil
         interests,
         intentions,
         onboarding_completed: true,
-      });
+      };
+      if (needsBirthDate) update.date_of_birth = dateOfBirth;
+      if (needsAgeAttestation) update.adult_attested = true;
+      await onSubmit(update);
     } catch {
-      setError('Não foi possível salvar seu perfil. Confira sua conexão e tente novamente.');
+      setError('Não foi possível salvar seu perfil. Confira os dados e tente novamente.');
     } finally {
       setBusy(false);
     }
@@ -55,7 +69,10 @@ export function ProfileForm({ profile, submitLabel, onSubmit, onCancel }: Profil
       <section className="form-section" aria-labelledby="identity-heading">
         <h2 id="identity-heading">Sobre você</h2>
         <p>Essas informações formam seu perfil. Sua data de nascimento é privada.</p>
+        <p>Se você entrar com Google ou Facebook, a foto de perfil disponível no provedor será importada depois que concluir esta etapa. Você poderá trocá-la em Editar perfil.</p>
         <label className="form-field"><span>Nome de exibição</span><input autoComplete="nickname" minLength={2} maxLength={40} required value={displayName} onChange={(event) => setDisplayName(event.target.value)} /></label>
+        {needsBirthDate && <label className="form-field"><span>Data de nascimento</span><input type="date" autoComplete="bday" max={maxBirthDate} required value={dateOfBirth} onChange={(event) => setDateOfBirth(event.target.value)} /><small>Esta data é privada e não será exibida no seu perfil.</small></label>}
+        {needsAgeAttestation && <label className="checkbox-line"><input type="checkbox" checked={acceptedAdult} onChange={(event) => setAcceptedAdult(event.target.checked)} /><span>Confirmo que tenho 18 anos ou mais.<small>Esta é uma autodeclaração; não há verificação documental independente nesta fase.</small></span></label>}
         <div className="form-grid">
           <label className="form-field"><span>Cidade</span><input autoComplete="address-level2" maxLength={80} required value={city} onChange={(event) => setCity(event.target.value)} placeholder="Ex.: Campinas" /></label>
           <label className="form-field"><span>Estado</span><select autoComplete="address-level1" required value={state} onChange={(event) => setState(event.target.value)}><option value="">Selecione</option>{BRAZILIAN_STATES.map(([uf, name]) => <option value={uf} key={uf}>{uf} — {name}</option>)}</select></label>

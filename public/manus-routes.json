@@ -3,6 +3,7 @@
     { "path": "/", "title": "VIRA — Tudo começa com uma conexão" },
     { "path": "/cadastro", "title": "Criar conta — VIRA" },
     { "path": "/entrar", "title": "Entrar — VIRA" },
+    { "path": "/auth/callback", "title": "Retorno de autenticação — VIRA" },
     { "path": "/onboarding", "title": "Seu perfil — VIRA" },
     { "path": "/inicio", "title": "Início — VIRA" },
     { "path": "/app", "title": "Início — VIRA" },

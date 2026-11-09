@@ -6,7 +6,7 @@ import { useProfile } from '../features/profile/ProfileContext';
 import { calculateAge, INTENTION_OPTIONS } from '../features/profile/profileOptions';
 
 export function ProfilePage() {
-  const { profile, loading } = useProfile();
+  const { profile, avatarUrl, avatarImportNotice, loading } = useProfile();
   if (loading) return <LoadingScreen message="Abrindo seu perfil…" />;
   if (!profile) return null;
 
@@ -17,11 +17,15 @@ export function ProfilePage() {
   return (
     <AppShell>
       <section className="app-page-heading"><div><span className="eyebrow">Esse perfil é seu</span><h1>Meu perfil</h1><p>Veja as informações que você escolheu compartilhar com o VIRA.</p></div><Link className="button button--outline" to="/perfil/editar"><PencilLine size={17} aria-hidden="true" /> Editar perfil</Link></section>
+      {avatarImportNotice && <div className="notice notice--warning" role="status"><strong>Foto de perfil</strong><span>{avatarImportNotice}</span></div>}
       <section className="profile-summary">
-        <div className="profile-summary__top"><div className="profile-avatar" aria-hidden="true">{initials}</div><div><h1>{profile.display_name}{age >= 18 ? `, ${age}` : ''}</h1><p><MapPin size={15} aria-hidden="true" /> {profile.city}, {profile.state}</p></div></div>
+        <div className="profile-summary__top">
+          <div className={`profile-avatar ${avatarUrl ? 'profile-avatar--photo' : ''}`} aria-hidden="true">{avatarUrl ? <img src={avatarUrl} alt="" /> : initials}</div>
+          <div><h1>{profile.display_name}{age >= 18 ? `, ${age}` : ''}</h1><p><MapPin size={15} aria-hidden="true" /> {profile.city}, {profile.state}</p></div>
+        </div>
         <div className="profile-detail-list">
           <div className="profile-detail"><CalendarDays size={17} aria-hidden="true" /><span>Idade calculada a partir da data de nascimento, que permanece privada.</span></div>
-          <div className="profile-detail"><ShieldCheck size={17} aria-hidden="true" /><span>Somente sua conta autorizada pode ler e atualizar estes dados nesta fase.</span></div>
+          <div className="profile-detail"><ShieldCheck size={17} aria-hidden="true" /><span>Somente sua conta autorizada pode ler estes dados e visualizar sua foto nesta fase.</span></div>
         </div>
         <div className="profile-section"><h2>Sobre mim</h2><p className="profile-bio">{profile.bio || 'Você ainda não adicionou uma biografia.'}</p></div>
         <div className="profile-section"><h2><Sparkles size={17} aria-hidden="true" /> Interesses</h2><div className="tag-list">{profile.interests.length ? profile.interests.map((interest) => <span className="tag" key={interest}>{interest}</span>) : <span className="profile-muted">Nenhum interesse selecionado ainda.</span>}</div></div>
