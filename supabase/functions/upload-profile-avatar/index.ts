@@ -9,6 +9,7 @@ const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const ALLOWED_ORIGINS = new Set([
   'https://8328-imfejuxl072isgpvi2r95-708c8afa.us5.manus.computer',
   'https://vira-cr5vxix7.manus.space',
+  'https://vira-app-9ajn.onrender.com',
   'https://vira.onrender.com',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
