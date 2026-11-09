@@ -8,6 +8,7 @@ interface AvatarPickerProps {
 }
 
 const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+const MAX_SOURCE_IMAGE_BYTES = 20 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const CROP_SIZE = 320;
 
@@ -69,8 +70,8 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
     if (!file) return;
     setMessage('');
     setError('');
-    if (file.size > MAX_IMAGE_BYTES) {
-      setError('A imagem deve ter no máximo 5 MB. Escolha uma foto menor.');
+    if (file.size > MAX_SOURCE_IMAGE_BYTES) {
+      setError('A foto original deve ter no máximo 20 MB. Escolha uma foto menor.');
       return;
     }
     const detectedType = await detectedImageType(file);
