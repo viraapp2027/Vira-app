@@ -7,7 +7,6 @@ interface AvatarPickerProps {
   onUpload: (file: File) => Promise<void>;
 }
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const MAX_SOURCE_IMAGE_BYTES = 20 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp']);
 const CROP_SIZE = 320;
