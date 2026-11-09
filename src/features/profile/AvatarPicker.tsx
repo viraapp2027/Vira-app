@@ -74,11 +74,14 @@ export function AvatarPicker({ displayName, imageUrl, onUpload }: AvatarPickerPr
       return;
     }
     const detectedType = await detectedImageType(file);
-    if (!detectedType || !ALLOWED_TYPES.has(detectedType)) {
+    const reportedType = file.type === 'image/jpg' ? 'image/jpeg' : file.type;
+    const extensionType = /\.jpe?g$/i.test(file.name) ? 'image/jpeg' : /\.png$/i.test(file.name) ? 'image/png' : /\.webp$/i.test(file.name) ? 'image/webp' : null;
+    const usableType = detectedType ?? (reportedType.startsWith('image/') ? reportedType : extensionType);
+    if (!usableType || (!ALLOWED_TYPES.has(usableType) && !reportedType.startsWith('image/'))) {
       setError('Este formato não é compatível. Escolha uma foto JPEG, PNG ou WebP; fotos HEIC/HEIF precisam ser convertidas antes.');
       return;
     }
-    const normalized = file.type === detectedType ? file : new File([file], file.name || 'avatar', { type: detectedType, lastModified: file.lastModified });
+    const normalized = file.type === usableType ? file : new File([file], file.name || 'avatar', { type: usableType, lastModified: file.lastModified });
     const url = URL.createObjectURL(normalized);
     const image = new Image();
     image.onload = () => {
