@@ -88,7 +88,18 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       setError('Não foi possível carregar seu perfil. Tente novamente.');
       setProfile(null);
     } else {
-      const nextProfile = (data as Profile | null) ?? null;
+      let nextProfile = (data as Profile | null) ?? null;
+      if (!nextProfile) {
+        const { data: repairedProfile, error: repairError } = await supabase.rpc('ensure_my_profile');
+        if (repairError) {
+          setError('Não foi possível preparar seu perfil. Tente novamente.');
+          setProfile(null);
+          setLoadedUserId(user.id);
+          setLoading(false);
+          return;
+        }
+        nextProfile = (repairedProfile as Profile | null) ?? null;
+      }
       const nextAvatarUrl = await signedAvatarUrl(nextProfile?.avatar_path);
       if (requestId !== refreshRequestId.current || userRef.current?.id !== user.id) return;
       setProfile(nextProfile);
