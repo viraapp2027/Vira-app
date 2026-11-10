@@ -7,6 +7,8 @@ import { LoadingScreen } from '../components/ui/LoadingScreen';
 const LandingPage = lazy(() => import('../pages/LandingPage').then((module) => ({ default: module.LandingPage })));
 const RegisterPage = lazy(() => import('../pages/RegisterPage').then((module) => ({ default: module.RegisterPage })));
 const LoginPage = lazy(() => import('../pages/LoginPage').then((module) => ({ default: module.LoginPage })));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPasswordPage').then((module) => ({ default: module.ForgotPasswordPage })));
+const ResetPasswordPage = lazy(() => import('../pages/ResetPasswordPage').then((module) => ({ default: module.ResetPasswordPage })));
 const OAuthCallbackPage = lazy(() => import('../pages/OAuthCallbackPage').then((module) => ({ default: module.OAuthCallbackPage })));
 const OnboardingPage = lazy(() => import('../pages/OnboardingPage').then((module) => ({ default: module.OnboardingPage })));
 const HomePage = lazy(() => import('../pages/HomePage').then((module) => ({ default: module.HomePage })));
@@ -21,6 +23,8 @@ export function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/cadastro" element={<RegisterPage />} />
         <Route path="/entrar" element={<LoginPage />} />
+        <Route path="/recuperar-senha" element={<ForgotPasswordPage />} />
+        <Route path="/redefinir-senha" element={<ResetPasswordPage />} />
         <Route path="/auth/callback" element={<OAuthCallbackPage />} />
         <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
         <Route path="/app" element={<ProtectedRoute><RequireOnboarding><HomePage /></RequireOnboarding></ProtectedRoute>} />

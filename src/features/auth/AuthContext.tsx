@@ -9,6 +9,8 @@ interface AuthContextValue {
   loading: boolean;
   configured: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  requestPasswordReset: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   signInWithProvider: (provider: SocialProvider) => Promise<void>;
   signUp: (details: SignUpDetails) => Promise<{ needsEmailConfirmation: boolean }>;
   signOut: () => Promise<void>;
@@ -52,6 +54,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn: async (email, password) => {
       if (!supabase) throw new Error('O Supabase ainda não está configurado para esta instalação.');
       const { error } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
+      if (error) throw error;
+    },
+    requestPasswordReset: async (email) => {
+      if (!supabase) throw new Error('O Supabase ainda não está configurado para esta instalação.');
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), { redirectTo: `${window.location.origin}/redefinir-senha` });
+      if (error) throw error;
+    },
+    updatePassword: async (password) => {
+      if (!supabase) throw new Error('O Supabase ainda não está configurado para esta instalação.');
+      const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
     },
     signInWithProvider: async (provider) => {

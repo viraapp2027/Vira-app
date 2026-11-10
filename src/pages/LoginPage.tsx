@@ -38,6 +38,7 @@ export function LoginPage() {
       <form className="form-stack" onSubmit={(event) => void handleSubmit(event)}>
         <label className="form-field"><span>Seu e-mail</span><input type="email" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="voce@exemplo.com" /></label>
         <label className="form-field"><span>Senha</span><input type="password" autoComplete="current-password" required value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Sua senha" /></label>
+        <p className="form-help"><Link to="/recuperar-senha">Esqueci minha senha</Link></p>
         {error && <p className="form-error" role="alert">{error}</p>}
         <button className="button button--primary button--full" type="submit" disabled={busy || !configured}>{busy ? 'Entrando…' : 'Entrar'}</button>
       </form>
