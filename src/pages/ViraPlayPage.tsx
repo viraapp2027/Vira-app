@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Archive, Check, Edit3, Gamepad2, Plus, Send, Sparkles } from 'lucide-react';
+import { Archive, Check, Edit3, ExternalLink, Gamepad2, Plus, Send, Sparkles } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
 import { supabase } from '../lib/supabase/client';
@@ -108,7 +109,7 @@ export function ViraPlayPage() {
       <section className="dashboard-card play-library"><div className="play-library__heading"><div><span className="eyebrow">Sua biblioteca</span><h2>Meus desafios</h2></div><span className="play-count">{challenges.length} {challenges.length === 1 ? 'desafio' : 'desafios'}</span></div>
         {loading && <p>Carregando seus desafios…</p>}
         {!loading && challenges.length === 0 && <p>Seus desafios aparecerão aqui depois que você criar o primeiro.</p>}
-        <div className="challenge-list">{challenges.map((challenge) => <article className="challenge-item" key={challenge.id}><div><strong>{challenge.title}</strong><span>{kindLabels[challenge.kind]} · <em className={`challenge-status challenge-status--${challenge.status}`}>{statusLabels[challenge.status]}</em></span><small>Código: {challenge.share_token}</small></div><div className="challenge-item__actions">{challenge.status !== 'archived' && <button className="button button--quiet" type="button" onClick={() => void openChallenge(challenge)}><Edit3 size={15} aria-hidden="true" /> Editar</button>}{challenge.status === 'draft' && <button className="button button--quiet" type="button" onClick={() => void setChallengeStatus(challenge, 'published')}><Send size={15} aria-hidden="true" /> Publicar</button>}{challenge.status === 'published' && <button className="button button--quiet" type="button" onClick={() => void setChallengeStatus(challenge, 'archived')}><Archive size={15} aria-hidden="true" /> Arquivar</button>}</div></article>)}</div>
+        <div className="challenge-list">{challenges.map((challenge) => <article className="challenge-item" key={challenge.id}><div><strong>{challenge.title}</strong><span>{kindLabels[challenge.kind]} · <em className={`challenge-status challenge-status--${challenge.status}`}>{statusLabels[challenge.status]}</em></span><small>Código: {challenge.share_token}</small></div><div className="challenge-item__actions">{challenge.status === 'published' && <Link className="button button--quiet" to={`/play/${challenge.share_token}`}><ExternalLink size={15} aria-hidden="true" /> Prévia</Link>}{challenge.status !== 'archived' && <button className="button button--quiet" type="button" onClick={() => void openChallenge(challenge)}><Edit3 size={15} aria-hidden="true" /> Editar</button>}{challenge.status === 'draft' && <button className="button button--quiet" type="button" onClick={() => void setChallengeStatus(challenge, 'published')}><Send size={15} aria-hidden="true" /> Publicar</button>}{challenge.status === 'published' && <button className="button button--quiet" type="button" onClick={() => void setChallengeStatus(challenge, 'archived')}><Archive size={15} aria-hidden="true" /> Arquivar</button>}</div></article>)}</div>
       </section>
     </AppShell>
   );
