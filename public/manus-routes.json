@@ -8,6 +8,10 @@
     { "path": "/inicio", "title": "Início — VIRA" },
     { "path": "/app", "title": "Início — VIRA" },
     { "path": "/perfil", "title": "Meu perfil — VIRA" },
-    { "path": "/perfil/editar", "title": "Editar perfil — VIRA" }
+    { "path": "/perfil/editar", "title": "Editar perfil — VIRA" },
+    { "path": "/play", "title": "VIRA Play — VIRA" },
+    { "path": "/play/:shareToken", "title": "Desafio VIRA Play — VIRA" },
+    { "path": "/play/:shareToken/ranking", "title": "Ranking VIRA Play — VIRA" },
+    { "path": "/play/:shareToken/resultados", "title": "Resultados VIRA Play — VIRA" }
   ]
 }

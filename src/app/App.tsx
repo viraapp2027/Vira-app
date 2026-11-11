@@ -17,6 +17,8 @@ const EditProfilePage = lazy(() => import('../pages/EditProfilePage').then((modu
 const SettingsPage = lazy(() => import('../pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
 const ViraPlayPage = lazy(() => import('../pages/ViraPlayPage').then((module) => ({ default: module.ViraPlayPage })));
 const PublicChallengePage = lazy(() => import('../pages/PublicChallengePage').then((module) => ({ default: module.PublicChallengePage })));
+const ChallengeResultsPage = lazy(() => import('../pages/ChallengeResultsPage').then((module) => ({ default: module.ChallengeResultsPage })));
+const ChallengeRankingPage = lazy(() => import('../pages/ChallengeResultsPage').then((module) => ({ default: module.ChallengeRankingPage })));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
 
 export function App() {
@@ -36,6 +38,8 @@ export function App() {
         <Route path="/configuracoes" element={<ProtectedRoute><RequireOnboarding><SettingsPage /></RequireOnboarding></ProtectedRoute>} />
         <Route path="/play" element={<ProtectedRoute><RequireOnboarding><ViraPlayPage /></RequireOnboarding></ProtectedRoute>} />
         <Route path="/play/:shareToken" element={<PublicChallengePage />} />
+        <Route path="/play/:shareToken/ranking" element={<ChallengeRankingPage />} />
+        <Route path="/play/:shareToken/resultados" element={<ProtectedRoute><RequireOnboarding><ChallengeResultsPage /></RequireOnboarding></ProtectedRoute>} />
         <Route path="/inicio" element={<Navigate to="/app" replace />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>

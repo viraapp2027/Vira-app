@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Check, Gamepad2, LockKeyhole, Send } from 'lucide-react';
+import { Check, Gamepad2, LockKeyhole, Medal, Send } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import { AppShell } from '../components/layout/AppShell';
 import { useAuth } from '../features/auth/AuthContext';
@@ -44,25 +44,19 @@ export function PublicChallengePage() {
     setError('');
     if (questions.some((question) => !answers[question.id])) { setError('Responda todas as perguntas antes de enviar.'); return; }
     setSending(true);
-    const existing = await supabase.from('challenge_participants').select('id').eq('challenge_id', challenge.id).eq('participant_id', user.id).maybeSingle();
-    if (existing.error) { setError('Não foi possível verificar sua participação.'); setSending(false); return; }
-    if (!existing.data) {
-      const joined = await supabase.from('challenge_participants').insert({ challenge_id: challenge.id, participant_id: user.id });
-      if (joined.error) { setError('Não foi possível entrar neste desafio.'); setSending(false); return; }
-    }
-    const responseResult = await supabase.from('challenge_responses').upsert(questions.map((question) => ({ challenge_id: challenge.id, question_id: question.id, participant_id: user.id, answer: answers[question.id] })), { onConflict: 'question_id,participant_id' });
-    if (responseResult.error) setError('Não foi possível salvar suas respostas.');
+    const responseResult = await supabase.rpc('submit_challenge_answers', { p_share_token: shareToken, p_answers: answers });
+    if (responseResult.error) setError(responseResult.error.message.includes('Responda') ? 'Responda todas as perguntas antes de enviar.' : 'Não foi possível salvar suas respostas.');
     else setSubmitted(true);
     setSending(false);
   }
 
   if (loading) return <AppShell><div className="state-card"><p>Carregando desafio…</p></div></AppShell>;
-  if (!challenge) return <AppShell><div className="state-card"><Gamepad2 size={30} aria-hidden="true" /><h1>Desafio indisponível</h1><p>{error || 'Este link não está mais disponível.'}</p><Link className="button button--quiet" to="/app">Voltar ao VIRA</Link></div></AppShell>;
+  if (!challenge) return <AppShell><div className="state-card"><Gamepad2 size={30} aria-hidden="true" /><h1>Desafio indisponível</h1><p>{error || 'Este link não está mais disponível.'}</p><div className="challenge-success__actions"><Link className="button button--primary" to={`/play/${shareToken}/ranking`}><Medal size={17} aria-hidden="true" /> Ver ranking</Link><Link className="button button--quiet" to="/app">Voltar ao VIRA</Link></div></div></AppShell>;
 
   return <AppShell showNavigation={Boolean(user)}>
     <section className="public-challenge-heading"><span className="eyebrow">VIRA Play</span><h1>{challenge.title}</h1><p>{challenge.description || 'Uma brincadeira criada para descobrir o que aproxima vocês.'}</p></section>
     {error && <div className="notice notice--warning" role="alert">{error}</div>}
-    {submitted ? <section className="dashboard-card challenge-success"><Check size={28} aria-hidden="true" /><h2>Respostas salvas.</h2><p>Você participou deste desafio. Obrigado por entrar na brincadeira.</p><Link className="button button--quiet" to="/app">Voltar ao VIRA</Link></section> : <form className="dashboard-card public-challenge-form" onSubmit={(event) => void handleSubmit(event)}>
+    {submitted ? <section className="dashboard-card challenge-success"><Check size={28} aria-hidden="true" /><h2>Respostas salvas.</h2><p>Você participou deste desafio. Obrigado por entrar na brincadeira.</p><div className="challenge-success__actions"><Link className="button button--primary" to={`/play/${shareToken}/ranking`}><Medal size={17} aria-hidden="true" /> Ver ranking</Link><Link className="button button--quiet" to="/app">Voltar ao VIRA</Link></div></section> : <form className="dashboard-card public-challenge-form" onSubmit={(event) => void handleSubmit(event)}>
       {questions.map((question, index) => <fieldset className="public-question" key={question.id}><legend><span>{index + 1}</span>{question.prompt}</legend><div className="public-options">{question.options.map((option) => <label className={`public-option ${answers[question.id] === option ? 'is-selected' : ''}`} key={option}><input type="radio" name={question.id} value={option} checked={answers[question.id] === option} onChange={() => choose(question.id, option)} />{option}</label>)}</div></fieldset>)}
       {user ? <button className="button button--primary button--full" type="submit" disabled={sending}><Send size={17} aria-hidden="true" /> {sending ? 'Enviando…' : 'Enviar respostas'}</button> : <div className="login-to-participate"><LockKeyhole size={18} aria-hidden="true" /><p><strong>Quer participar?</strong> Entre ou crie sua conta para salvar suas respostas.</p><Link className="button button--quiet" to={`/entrar?redirect=/play/${shareToken}`}>Entrar para responder</Link></div>}
     </form>}
