@@ -197,7 +197,7 @@ as $$
   where q.challenge_id = p_challenge_id
     and c.owner_id = auth.uid()
   group by q.id, q.position, q.prompt, option_value
-  order by q.position, response_count desc, option_value;
+  order by q.position, count(r.id) desc, option_value;
 $$;
 
 revoke all on function public.submit_challenge_answers(text, jsonb) from public, anon, authenticated;
