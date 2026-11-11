@@ -1,5 +1,5 @@
 import { Navigate, Link } from 'react-router-dom';
-import { ArrowRight, Heart, MapPin, PencilLine, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Gamepad2, Heart, MapPin, PencilLine, ShieldCheck, Sparkles } from 'lucide-react';
 import { AppShell } from '../components/layout/AppShell';
 import { LoadingScreen } from '../components/ui/LoadingScreen';
 import { useAuth } from '../features/auth/AuthContext';
@@ -47,6 +47,10 @@ export function HomePage() {
       <section className="profile-banner" aria-label="Nota sobre a primeira fase">
         <Sparkles size={19} aria-hidden="true" />
         <p><strong>Estamos construindo com cuidado.</strong> Seu cadastro e perfil já ficam salvos no Supabase. Descoberta, chat, desafios, grupos e rolês serão entregues em próximas fases.</p>
+      </section>
+      <section className="dashboard-card play-home-card">
+        <div><span className="eyebrow">VIRA Play</span><h2>Uma pergunta pode virar uma conexão.</h2><p>Crie um desafio com perguntas leves e descubra o que aproxima vocês.</p></div>
+        <Link className="button button--quiet" to="/play"><Gamepad2 size={17} aria-hidden="true" /> Criar desafio</Link>
       </section>
       <span className="sr-only">Conta autenticada: {user?.email}</span>
     </AppShell>

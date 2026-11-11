@@ -15,6 +15,7 @@ const HomePage = lazy(() => import('../pages/HomePage').then((module) => ({ defa
 const ProfilePage = lazy(() => import('../pages/ProfilePage').then((module) => ({ default: module.ProfilePage })));
 const EditProfilePage = lazy(() => import('../pages/EditProfilePage').then((module) => ({ default: module.EditProfilePage })));
 const SettingsPage = lazy(() => import('../pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
+const ViraPlayPage = lazy(() => import('../pages/ViraPlayPage').then((module) => ({ default: module.ViraPlayPage })));
 const NotFoundPage = lazy(() => import('../pages/NotFoundPage').then((module) => ({ default: module.NotFoundPage })));
 
 export function App() {
@@ -32,6 +33,7 @@ export function App() {
         <Route path="/perfil" element={<ProtectedRoute><RequireOnboarding><ProfilePage /></RequireOnboarding></ProtectedRoute>} />
         <Route path="/perfil/editar" element={<ProtectedRoute><RequireOnboarding><EditProfilePage /></RequireOnboarding></ProtectedRoute>} />
         <Route path="/configuracoes" element={<ProtectedRoute><RequireOnboarding><SettingsPage /></RequireOnboarding></ProtectedRoute>} />
+        <Route path="/play" element={<ProtectedRoute><RequireOnboarding><ViraPlayPage /></RequireOnboarding></ProtectedRoute>} />
         <Route path="/inicio" element={<Navigate to="/app" replace />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
